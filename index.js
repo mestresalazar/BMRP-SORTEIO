@@ -150,7 +150,7 @@ client.on('interactionCreate', async interaction => {
 
       await interaction.showModal(modal);
     } else if (interaction.customId === 'btn_list_prizes') {
-      const prizes = config ? config.prizes.join('\n- ') : '15k de cash';
+      const prizes = config && config.prizes && config.prizes.length > 0 ? config.prizes.join('\n- ') : 'Nenhum prêmio cadastrado.';
       await interaction.reply({ content: `🎁 **Prêmios cadastrados atualmente:**\n- ${prizes}`, ephemeral: true });
     } else if (interaction.customId === 'btn_force_sorteio') {
       await interaction.reply({ content: '🎲 Forçando sorteio de teste...', ephemeral: true });
@@ -167,6 +167,8 @@ client.on('interactionCreate', async interaction => {
     }
   } else if (interaction.isModalSubmit()) {
     if (interaction.customId === 'modal_add_prize') {
+      await interaction.deferReply({ ephemeral: true });
+      
       const newPrize = interaction.fields.getTextInputValue('input_prize_name');
       
       let config = await Config.findOne({ guildId: interaction.guild.id });
@@ -177,7 +179,7 @@ client.on('interactionCreate', async interaction => {
       config.prizes.push(newPrize);
       await config.save();
 
-      await interaction.reply({ content: `✅ Prêmio **"${newPrize}"** adicionado com sucesso à lista de sorteios!`, ephemeral: true });
+      await interaction.editReply({ content: `✅ Prêmio **"${newPrize}"** adicionado com sucesso à lista de sorteios!` });
     }
   }
 });
