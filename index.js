@@ -18,8 +18,8 @@ app.listen(PORT, () => {
   console.log(`[Servidor Web] Porta HTTP rodando na porta ${PORT}`);
 });
 
-const Booster = require('./models/Booster');
-const Config = require('./models/Config');
+const Booster = require('./src/models/Booster');
+const Config = require('./src/models/Config');
 
 const client = new Client({
   intents: [
@@ -31,9 +31,9 @@ const client = new Client({
 
 client.commands = new Collection();
 
-// 1. Carregar Comandos (caminho corrigido para a mesma pasta src)
+// 1. Carregar Comandos
 const commands = [];
-const commandsPath = path.join(__dirname, 'commands');
+const commandsPath = path.join(__dirname, 'src/commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
@@ -45,8 +45,8 @@ for (const file of commandFiles) {
   }
 }
 
-// 2. Carregar Eventos (caminho corrigido para a mesma pasta src)
-const eventsPath = path.join(__dirname, 'events');
+// 2. Carregar Eventos
+const eventsPath = path.join(__dirname, 'src/events');
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
 
 for (const file of eventFiles) {
