@@ -167,8 +167,6 @@ client.on('interactionCreate', async interaction => {
     }
   } else if (interaction.isModalSubmit()) {
     if (interaction.customId === 'modal_add_prize') {
-      await interaction.deferReply({ ephemeral: true });
-      
       const newPrize = interaction.fields.getTextInputValue('input_prize_name');
       
       let config = await Config.findOne({ guildId: interaction.guild.id });
@@ -179,7 +177,7 @@ client.on('interactionCreate', async interaction => {
       config.prizes.push(newPrize);
       await config.save();
 
-      await interaction.editReply({ content: `✅ Prêmio **"${newPrize}"** adicionado com sucesso à lista de sorteios!` });
+      await interaction.reply({ content: `✅ Prêmio **"${newPrize}"** adicionado com sucesso à lista de sorteios!`, ephemeral: true });
     }
   }
 });
