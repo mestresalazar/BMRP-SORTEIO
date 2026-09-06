@@ -31,32 +31,36 @@ const client = new Client({
 
 client.commands = new Collection();
 
-// 1. Carregar Comandos
+// 1. Carregar Comandos (Com verificação de segurança)
 const commands = [];
 const commandsPath = path.join(__dirname, 'src/commands');
-const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
-
-for (const file of commandFiles) {
-  const filePath = path.join(commandsPath, file);
-  const command = require(filePath);
-  if ('data' in command && 'execute' in command) {
-    client.commands.set(command.data.name, command);
-    commands.push(command.data.toJSON());
+if (fs.existsSync(commandsPath)) {
+  const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+  for (const file of commandFiles) {
+    const filePath = path.join(commandsPath, file);
+    const command = require(filePath);
+    if ('data' in command && 'execute' in command) {
+      client.commands.set(command.data.name, command);
+      commands.push(command.data.toJSON());
+    }
   }
 }
 
-// 2. Carregar Eventos
+// 2. Carregar Eventos (Com verificação para evitar erro do Git)
 const eventsPath = path.join(__dirname, 'src/events');
-const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
-
-for (const file of eventFiles) {
-  const filePath = path.join(eventsPath, file);
-  const event = require(filePath);
-  if (event.once) {
-    client.once(event.name, (...args) => event.execute(...args, client));
-  } else {
-    client.on(event.name, (...args) => event.execute(...args, client));
+if (fs.existsSync(eventsPath)) {
+  const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
+  for (const file of eventFiles) {
+    const filePath = path.join(eventsPath, file);
+    const event = require(filePath);
+    if (event.once) {
+      client.once(event.name, (...args) => event.execute(...args, client));
+    } else {
+      client.on(event.name, (...args) => event.execute(...args, client));
+    }
   }
+} else {
+  console.log('[Aviso] Pasta src/events inexistente ou vazia. Pulando eventos externos.');
 }
 
 client.once('ready', async () => {
