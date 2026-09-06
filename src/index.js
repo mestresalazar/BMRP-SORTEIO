@@ -31,7 +31,7 @@ const client = new Client({
 
 client.commands = new Collection();
 
-// 1. Carregar Comandos
+// 1. Carregar Comandos (caminho corrigido para a mesma pasta src)
 const commands = [];
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
@@ -45,7 +45,7 @@ for (const file of commandFiles) {
   }
 }
 
-// 2. Carregar Eventos
+// 2. Carregar Eventos (caminho corrigido para a mesma pasta src)
 const eventsPath = path.join(__dirname, 'events');
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
 
