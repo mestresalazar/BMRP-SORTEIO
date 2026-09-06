@@ -1,5 +1,5 @@
 const express = require('express');
-const { Client, GatewayIntentBits, Collection, REST, Routes } = require('discord.js');
+const { Client, GatewayIntentBits, Collection, REST, Routes, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require('discord.js');
 const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
@@ -111,7 +111,7 @@ client.once('ready', async () => {
   });
 });
 
-// 3. Manipulador de Interações (Comandos e Botões do Painel)
+// 3. Manipulador de Interações (Comandos, Botões do Painel e Modais)
 client.on('interactionCreate', async interaction => {
   if (interaction.isChatInputCommand()) {
     const command = client.commands.get(interaction.commandName);
@@ -134,7 +134,21 @@ client.on('interactionCreate', async interaction => {
     const config = await Config.findOne({ guildId: interaction.guild.id });
 
     if (interaction.customId === 'btn_add_prize') {
-      await interaction.reply({ content: '💡 Para adicionar novos prêmios ou customizar, você pode ajustar diretamente no banco de dados ou posso criar um modal interativo para você digitar o prêmio. Deseja que eu adicione o modal?', ephemeral: true });
+      const modal = new ModalBuilder()
+        .setCustomId('modal_add_prize')
+        .setTitle('Adicionar Novo Prêmio');
+
+      const prizeInput = new TextInputBuilder()
+        .setCustomId('input_prize_name')
+        .setLabel('Nome do Prêmio')
+        .setStyle(TextInputStyle.Short)
+        .setPlaceholder('Ex: 20k de cash ou 1 Veículo VIP')
+        .setRequired(true);
+
+      const rowModal = new ActionRowBuilder().addComponents(prizeInput);
+      modal.addComponents(rowModal);
+
+      await interaction.showModal(modal);
     } else if (interaction.customId === 'btn_list_prizes') {
       const prizes = config ? config.prizes.join('\n- ') : '15k de cash';
       await interaction.reply({ content: `🎁 **Prêmios cadastrados atualmente:**\n- ${prizes}`, ephemeral: true });
@@ -150,6 +164,20 @@ client.on('interactionCreate', async interaction => {
       if (winnerMember) {
         await interaction.channel.send(`🎉 **[TESTE DE SORTEIO]** O usuário ${winnerMember} foi sorteado com sucesso!`);
       }
+    }
+  } else if (interaction.isModalSubmit()) {
+    if (interaction.customId === 'modal_add_prize') {
+      const newPrize = interaction.fields.getTextInputValue('input_prize_name');
+      
+      let config = await Config.findOne({ guildId: interaction.guild.id });
+      if (!config) {
+        config = await Config.create({ guildId: interaction.guild.id, prizes: [] });
+      }
+
+      config.prizes.push(newPrize);
+      await config.save();
+
+      await interaction.reply({ content: `✅ Prêmio **"${newPrize}"** adicionado com sucesso à lista de sorteios!`, ephemeral: true });
     }
   }
 });
