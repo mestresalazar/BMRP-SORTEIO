@@ -150,8 +150,8 @@ client.on('interactionCreate', async interaction => {
 
       await interaction.showModal(modal);
     } else if (interaction.customId === 'btn_list_prizes') {
-      const prizes = config && config.prizes && config.prizes.length > 0 ? config.prizes.join('\n- ') : 'Nenhum prêmio cadastrado.';
-      await interaction.reply({ content: `🎁 **Prêmios cadastrados atualmente:**\n- ${prizes}`, ephemeral: true });
+      const prizes = config && config.prizes && config.prizes.length > 0 ? config.prizes.map((p, i) => `${i + 1}. ${p}`).join('\n') : 'Nenhum prêmio cadastrado.';
+      await interaction.reply({ content: `🎁 **Prêmios cadastrados atualmente:**\n${prizes}`, ephemeral: true });
     } else if (interaction.customId === 'btn_force_sorteio') {
       await interaction.reply({ content: '🎲 Forçando sorteio de teste...', ephemeral: true });
       // Lógica rápida de teste de sorteio
